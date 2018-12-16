@@ -22,5 +22,4 @@ fi
 pip install conan --upgrade
 pip install conan_package_tools
 
-conan remote add conan-steak https://bintray.com/steakhal/conan # remove after accepted into conan-center repository
 conan user
