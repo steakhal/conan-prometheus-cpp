@@ -50,6 +50,7 @@ conan_basic_setup()''')
     def configure_cmake(self):
         onoff = lambda b: "On" if b else "Off"
         cmake = CMake(self)
+        cmake.verbose = True
         
         cmake.definitions["BUILD_SHARED_LIBS"] = onoff(self.options.shared)
         cmake.definitions["ENABLE_PULL"] = onoff(self.options.enable_pull)
