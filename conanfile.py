@@ -27,7 +27,7 @@ class PrometheuscppConan(ConanFile):
         "enable_push": True,
         "enable_compression": True
     }
-    requires = "civetweb/1.11@civetweb/testing"
+    requires = "civetweb/1.11@steakhal/testing"
 
     def source(self):
         git = tools.Git(folder=self.name)
