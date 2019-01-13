@@ -6,9 +6,3 @@ conan_basic_setup()
 
 add_executable(sample_server sample_server.cc)
 target_link_libraries(sample_server ${CONAN_LIBS})
-
-# CTest is a testing tool that can be used to test your project.
-# enable_testing()
-# add_test(NAME prometheus-example
-#          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-#          COMMAND prometheus-example)
