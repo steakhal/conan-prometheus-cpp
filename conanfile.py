@@ -8,27 +8,25 @@ class PrometheusCppConan(ConanFile):
     name = "prometheus-cpp"
     version = "0.6.0"
     license = "MIT"
-    author = "Balazs Benics <benicsbalazs@gmail.com>"
     url = "https://github.com/steakhal/conan-prometheus-cpp"
     homepage = "https://github.com/jupp0r/prometheus-cpp"
     description = "This library aims to enable Metrics-Driven Development for C++ services"
     topics = ("conan", "prometheus-cpp","metrics", "measure", "statistics", "profile", "log")
+    author = "Balazs Benics <benicsbalazs@gmail.com>"
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "enable_pull": [True, False],
         "enable_push": [True, False],
-        "enable_compression": [True, False],
-        "override_cxx_standard_flags": [True, False]
+        "enable_compression": [True, False]
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "enable_pull": True,
         "enable_push": True,
-        "enable_compression": True,
-        "override_cxx_standard_flags": True
+        "enable_compression": True
     }
     exports = "LICENSE"
     exports_sources = "CMakeLists.txt"
@@ -80,4 +78,3 @@ class PrometheusCppConan(ConanFile):
         self.cpp_info.libs.append("prometheus-cpp-core")
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
-

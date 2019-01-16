@@ -6,26 +6,25 @@
 
 ## Basic setup
 
-    $ conan install prometheus-cpp/0.6@conan/stable
+    $ conan install prometheus-cpp/0.6@conan/testing
     
 ## Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
     
     [requires]
-      conan-prometheus-cpp/0.6@conan/stable
+      prometheus-cpp/0.6@conan/testing
 
     [options]
       prometheus-cpp:shared=True
       prometheus-cpp:enable_pull=True
-      prometheus:enable_push=True
-      prometheus:enable_compression=True
-      prometheus:override_cxx_standard_flags=True
+      prometheus-cpp:enable_push=True
+      prometheus-cpp:enable_compression=True
 
     [generators]
       cmake
 
-Complete the installation of requirements for your project running:</small></span>
+Complete the installation of requirements for your project running:
 
     conan install . 
 
