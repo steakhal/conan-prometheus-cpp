@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, time, subprocess
+import os, time, subprocess, requests
 from conans import ConanFile, CMake, tools
 
 
@@ -13,26 +13,23 @@ class PrometheuscppTestConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def imports(self):
-        self.copy("*.dll", dst="bin", src="bin")
-        self.copy("*.dylib*", dst="bin", src="lib")
-        self.copy('*.so*', dst='bin', src='lib')
-
     def test(self):
         assert os.path.exists(os.path.join(self.deps_cpp_info["prometheus-cpp"].rootpath, "licenses", "LICENSE"))
         if tools.cross_building(self.settings):
+            self.output.warn("Cross Building: Skipping Test Package")
             return
 
-        assert(self.options["enable_pull"]) # must be enabled for testing 'sample_server'
+        if not self.options["prometheus-cpp"].enable_pull:
+            self.output.warn("Enable Pull disabled: Skipping Test Package")
+            return
 
-        # TODO: cleanup this mess :D
-        os.chdir("bin")
-        sample_server_path = os.path.join(os.getcwd(), 'sample_server')
+        sample_server_path = os.path.join("bin", 'sample_server')
         sample_server = subprocess.Popen([sample_server_path])
-        time.sleep(1)
-        curl = subprocess.Popen("curl -s http://localhost:8080/metrics", shell=True, stdout=subprocess.PIPE)
-        curl.wait()
-        sample_server.kill()
-        
-        assert(curl.returncode == 0)
+        self.output.info("Running sample server")
+        time.sleep(3)
+        try:
+            response = requests.get("http://localhost:8080/metrics")
+        finally:
+            sample_server.kill()
+            assert response.ok
 
