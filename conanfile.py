@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-from conans import ConanFile, CMake, tools
 
+import os
+import shutil
+from conans import ConanFile, CMake, tools
 
 class PrometheusCppConan(ConanFile):
     name = "prometheus-cpp"
@@ -19,38 +20,43 @@ class PrometheusCppConan(ConanFile):
         "fPIC": [True, False],
         "enable_pull": [True, False],
         "enable_push": [True, False],
-        "enable_compression": [True, False]
+        "enable_compression": [True, False],
+        "override_cxx_standard_flags": [True, False]
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "enable_pull": True,
         "enable_push": True,
-        "enable_compression": True
+        "enable_compression": True,
+        "override_cxx_standard_flags": True
     }
     exports = "LICENSE"
     exports_sources = "CMakeLists.txt"
     generators = "cmake"
-    _source_subfolder = "source_subfolder"
+    source_subfolder = "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def source(self):
-        tools.get("{0}/archive/v{1}.zip".format(self.homepage, self.version))
-        extracted_dir = self.name + "-" + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        tools.get("https://people.inf.elte.hu/steakhal/v%s.zip" % self.version)
+        os.rename("prometheus-cpp-%s" % self.version, self.source_subfolder)
+        os.rename(os.path.join(self.source_subfolder, "CMakeLists.txt"),
+                  os.path.join(self.source_subfolder, "CMakeLists_original.txt"))
+        shutil.copy("CMakeLists.txt",
+                    os.path.join(self.source_subfolder, "CMakeLists.txt"))
 
     def requirements(self):
         self.requires("civetweb/1.11@civetweb/stable")
-        self.requires("OpenSSL/1.0.2q@conan/stable", override=True)
+        self.requires("OpenSSL/1.1.1a@conan/stable", override=True)
         if self.options.enable_pull:
             self.requires.add("zlib/1.2.11@conan/stable")
         if self.options.enable_push:
             self.requires.add("libcurl/7.61.1@bincrafters/stable")
 
-    def _configure_cmake(self):
+    def build(self):
         cmake = CMake(self)
         cmake.definitions["ENABLE_PULL"] = self.options.enable_pull
         cmake.definitions["ENABLE_PUSH"] = self.options.enable_push
@@ -58,23 +64,23 @@ class PrometheusCppConan(ConanFile):
         cmake.definitions["OVERRIDE_CXX_STANDARD_FLAGS"] = self.options.override_cxx_standard_flags
         cmake.definitions["ENABLE_TESTING"] = False
         cmake.definitions["USE_THIRDPARTY_LIBRARIES"] = False
-        cmake.configure()
-        return cmake
-
-    def build(self):
-        cmake = self._configure_cmake()
+        
+        cmake.configure(source_dir=self.source_subfolder)
         cmake.build()
-
-    def package(self):
-        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        cmake = self._configure_cmake()
         cmake.install()
 
+    def package(self):
+        self.copy("LICENSE", dst="licenses", src=self.source_subfolder)
+        # cmake = self._configure_cmake()
+        # cmake.install()
+
     def package_info(self):
+        self.cpp_info.libs.append("prometheus-cpp-core")
+        
         if self.options.enable_pull:
             self.cpp_info.libs.append("prometheus-cpp-pull")
         if self.options.enable_push:
             self.cpp_info.libs.append("prometheus-cpp-push")
-        self.cpp_info.libs.append("prometheus-cpp-core")
+        
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
