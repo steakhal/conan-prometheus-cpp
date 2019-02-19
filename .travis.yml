@@ -1,14 +1,12 @@
 env:
    global:
+     - CONAN_UPLOAD:  "https://api.bintray.com/conan/steakhal/conan"
      - CONAN_REMOTES: "https://api.bintray.com/conan/steakhal/conan"
      - CONAN_BUILD_POLICY: "missing"
      - CONAN_USERNAME: "steakhal"
-     - CONAN_LOGIN_USERNAME: "steakhal"
-     - CONAN_CHANNEL: "testing"
-     - CONAN_UPLOAD: https://bintray.com/steakhal/conan"
-     - CONAN_STABLE_BRANCH_PATTERN: "release/*"
-     - CONAN_UPLOAD_ONLY_WHEN_STABLE: 1 # Will only upload when the branch matches "release/*"
      - CONAN_DOCKER_32_IMAGES: 1
+     - CONAN_STABLE_BRANCH_PATTERN: "release/*"
+     - CONAN_UPLOAD_ONLY_WHEN_STABLE: 1
 
 linux: &linux
    os: linux

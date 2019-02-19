@@ -42,7 +42,8 @@ class PrometheusCppConan(ConanFile):
 
     def source(self):
         # downloads the sources of prometheus-cpp from github releases
-        tools.get("https://people.inf.elte.hu/steakhal/v%s.zip" % self.version)
+        #tools.get("https://people.inf.elte.hu/steakhal/v%s.zip" % self.version)
+        tools.get("https://github.com/jupp0r/prometheus-cpp/archive/v%s.zip" % self.version)
         os.rename("prometheus-cpp-%s" % self.version, self.source_subfolder)
         os.rename(os.path.join(self.source_subfolder, "CMakeLists.txt"),
                   os.path.join(self.source_subfolder, "CMakeLists_original.txt"))
