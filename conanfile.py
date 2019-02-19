@@ -31,22 +31,27 @@ class PrometheusCppConan(ConanFile):
         "enable_compression": True,
         "override_cxx_standard_flags": True
     }
-    exports = "LICENSE"
-    exports_sources = "CMakeLists.txt"
-    generators = "cmake"
     source_subfolder = "source_subfolder"
+    exports = "LICENSE.md"
+    exports_sources = ["CMakeLists.txt", source_subfolder]
+    generators = "cmake"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
     def source(self):
+        # downloads the sources of prometheus-cpp from github releases
         tools.get("https://people.inf.elte.hu/steakhal/v%s.zip" % self.version)
         os.rename("prometheus-cpp-%s" % self.version, self.source_subfolder)
         os.rename(os.path.join(self.source_subfolder, "CMakeLists.txt"),
                   os.path.join(self.source_subfolder, "CMakeLists_original.txt"))
         shutil.copy("CMakeLists.txt",
                     os.path.join(self.source_subfolder, "CMakeLists.txt"))
+
+    def configure(self):
+        if self.settings.compiler == 'Visual Studio' and str(self.settings.compiler.version) < '14':
+            raise ConanException('Visual Studio >= 14 is required, yours is %s' % self.settings.compiler.version)
 
     def requirements(self):
         self.requires("civetweb/1.11@civetweb/stable")
@@ -65,7 +70,7 @@ class PrometheusCppConan(ConanFile):
         cmake.definitions["ENABLE_TESTING"] = False
         cmake.definitions["USE_THIRDPARTY_LIBRARIES"] = False
         
-        cmake.configure(source_dir=self.source_subfolder)
+        cmake.configure(source_dir=os.path.join(self.source_folder, self.source_subfolder))
         cmake.build()
         cmake.install()
 
