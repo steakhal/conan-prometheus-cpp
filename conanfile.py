@@ -4,6 +4,7 @@
 import os
 import shutil
 from conans import ConanFile, CMake, tools
+from conans.errors import ConanException
 
 class PrometheusCppConan(ConanFile):
     name = "prometheus-cpp"
@@ -41,9 +42,7 @@ class PrometheusCppConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        # downloads the sources of prometheus-cpp from github releases
-        #tools.get("https://people.inf.elte.hu/steakhal/v%s.zip" % self.version)
-        tools.get("https://github.com/jupp0r/prometheus-cpp/archive/v%s.zip" % self.version)
+        tools.get("%s/archive/v%s.zip" % (self.homepage, self.version))
         os.rename("prometheus-cpp-%s" % self.version, self.source_subfolder)
         os.rename(os.path.join(self.source_subfolder, "CMakeLists.txt"),
                   os.path.join(self.source_subfolder, "CMakeLists_original.txt"))
@@ -51,7 +50,7 @@ class PrometheusCppConan(ConanFile):
                     os.path.join(self.source_subfolder, "CMakeLists.txt"))
 
     def configure(self):
-        if self.settings.compiler == 'Visual Studio' and str(self.settings.compiler.version) < '14':
+        if self.options.enable_push and self.settings.compiler == 'Visual Studio' and str(self.settings.compiler.version) < '14':
             raise ConanException('Visual Studio >= 14 is required, yours is %s' % self.settings.compiler.version)
 
     def requirements(self):
@@ -64,10 +63,16 @@ class PrometheusCppConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
+        cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
+        
+        if self.settings.compiler != 'Visual Studio':
+            cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = self.options.fPIC
+        
         cmake.definitions["ENABLE_PULL"] = self.options.enable_pull
         cmake.definitions["ENABLE_PUSH"] = self.options.enable_push
         cmake.definitions["ENABLE_COMPRESSION"] = self.options.enable_compression
         cmake.definitions["OVERRIDE_CXX_STANDARD_FLAGS"] = self.options.override_cxx_standard_flags
+        
         cmake.definitions["ENABLE_TESTING"] = False
         cmake.definitions["USE_THIRDPARTY_LIBRARIES"] = False
         
