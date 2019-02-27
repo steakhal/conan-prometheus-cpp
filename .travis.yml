@@ -4,7 +4,6 @@ env:
      - CONAN_REMOTES: "https://api.bintray.com/conan/steakhal/conan"
      - CONAN_BUILD_POLICY: "missing"
      - CONAN_USERNAME: "steakhal"
-     - CONAN_LOGIN_USERNAME: "steakhal"
      - CONAN_DOCKER_32_IMAGES: 1
      - CONAN_CHANNEL: "testing"
 #     - CONAN_STABLE_BRANCH_PATTERN: "release/*"

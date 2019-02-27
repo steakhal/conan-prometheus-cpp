@@ -50,12 +50,13 @@ class PrometheusCppConan(ConanFile):
                     os.path.join(self.source_subfolder, "CMakeLists.txt"))
 
     def configure(self):
-        if self.options.enable_push and self.settings.compiler == 'Visual Studio' and str(self.settings.compiler.version) < '14':
+        if self.options.enable_push and self.settings.compiler == 'Visual Studio' and Version(self.settings.compiler.version) < '14':
             raise ConanException('Visual Studio >= 14 is required, yours is %s' % self.settings.compiler.version)
 
     def requirements(self):
         self.requires("civetweb/1.11@civetweb/stable")
-        self.requires("OpenSSL/1.1.1a@conan/stable", override=True)
+        
+        self.requires("OpenSSL/1.0.2q@conan/stable", override=True)
         if self.options.enable_pull:
             self.requires.add("zlib/1.2.11@conan/stable")
         if self.options.enable_push:
@@ -95,3 +96,7 @@ class PrometheusCppConan(ConanFile):
         
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
+        
+        # gcc's atomic library not linked automatically on clang
+        if self.settings.compiler == "clang":
+            self.cpp_info.libs.append("atomic")
