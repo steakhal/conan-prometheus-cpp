@@ -85,18 +85,6 @@ class PrometheusCppConan(ConanFile):
         self.copy("LICENSE", dst="licenses", src=self.source_subfolder)
         # cmake = self._configure_cmake()
         # cmake.install()
-        
-    def imports(self):
-        # Copy shared libraries for dependencies to fix DYLD_LIBRARY_PATH problems
-        #
-        # Configure script creates conftest that cannot execute without shared openssl binaries.
-        # Ways to solve the problem:
-        # 1. set *LD_LIBRARY_PATH (works with Linux with RunEnvironment
-        #     but does not work on OS X 10.11 with SIP)
-        # 2. copying dylib's to the build directory (fortunately works on OS X)
-
-        if self.settings.os == "Macos":
-            self.copy("*.dylib*", dst=self.source_subfolder, keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs.append("prometheus-cpp-core")
