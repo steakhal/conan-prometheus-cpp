@@ -8,6 +8,10 @@ conan_basic_setup()
 
 find_package(prometheus-cpp CONFIG REQUIRED)
 
-add_executable(sample_server sample_server.cc)
-target_link_libraries(sample_server ${CONAN_LIBS})
-set_target_properties(sample_server PROPERTIES CXX_STANDARD 11)
+if(TEST_PROMETHEUS_PULL)
+  add_subdirectory(test-pull)
+endif()
+
+if(TEST_PROMETHEUS_PUSH)
+  add_subdirectory(test-push)
+endif()

@@ -5,6 +5,7 @@ import os
 import shutil
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanException
+from conans.model.version import Version
 
 class PrometheusCppConan(ConanFile):
     name = "prometheus-cpp"
@@ -50,14 +51,18 @@ class PrometheusCppConan(ConanFile):
                     os.path.join(self.source_subfolder, "CMakeLists.txt"))
 
     def configure(self):
-        if self.options.enable_push and self.settings.compiler == 'Visual Studio' and Version(self.settings.compiler.version) < '14':
-            raise ConanException('Visual Studio >= 14 is required, yours is %s' % self.settings.compiler.version)
+        if not self.options.enable_push and not self.options.enable_pull:
+            raise ConanException('You must enable at least one of push or pull for this package.')
+        
+        cc = self.settings.compiler
+        if self.options.enable_push and cc == 'Visual Studio' and Version(cc.version) < '14':
+            raise ConanException('Visual Studio >= 14 is required, yours is %s' % cc.version)
 
     def requirements(self):
         self.requires("civetweb/1.11@civetweb/stable")
-        
         self.requires("OpenSSL/1.0.2q@conan/stable", override=True)
-        if self.options.enable_pull:
+        
+        if self.options.enable_pull and self.options.enable_compression:
             self.requires.add("zlib/1.2.11@conan/stable")
         if self.options.enable_push:
             self.requires.add("libcurl/7.61.1@bincrafters/stable")
@@ -87,7 +92,7 @@ class PrometheusCppConan(ConanFile):
         # cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs.append("prometheus-cpp-core")
+        #self.cpp_info.libs.append("prometheus-cpp-core")
         
         if self.options.enable_pull:
             self.cpp_info.libs.append("prometheus-cpp-pull")
@@ -100,3 +105,6 @@ class PrometheusCppConan(ConanFile):
         # gcc's atomic library not linked automatically on clang
         if self.settings.compiler == "clang":
             self.cpp_info.libs.append("atomic")
+        
+        if self.options.shared and self.settings.os == "Linux":
+            self.cpp_info.libs.append("dl")
