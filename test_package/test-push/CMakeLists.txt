@@ -6,5 +6,5 @@ set_target_properties(sample_client PROPERTIES CXX_STANDARD 11)
 
 target_link_libraries(sample_client
   PRIVATE
-    prometheus-cpp::push
+    ${CONAN_LIBS}
 )
