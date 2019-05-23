@@ -7,33 +7,15 @@ import subprocess
 import requests
 from conans import ConanFile, CMake, tools
 
-
 class PrometheuscppTestConan(ConanFile):
-
     settings = ('os', 'compiler', 'build_type', 'arch')
     generators = 'cmake'
 
     def build(self):
         cmake = CMake(self)
-
-        if self.options['prometheus-cpp'].enable_pull:
-            cmake.definitions['TEST_PROMETHEUS_PULL'] = True
-        if self.options['prometheus-cpp'].enable_push:
-            cmake.definitions['TEST_PROMETHEUS_PUSH'] = True
-
+        cmake.definitions['TEST_PROMETHEUS_PULL'] = (self.options['prometheus-cpp'].mode == 'pull')
         cmake.configure()
         cmake.build()
-
-    def _test_pull(self):
-        sample_server_path = os.path.join('bin', 'test-pull', 'sample_server')
-        sample_server = subprocess.Popen([sample_server_path])
-        self.output.info('Running sample server')
-        time.sleep(3)
-        try:
-            response = requests.get('http://localhost:8080/metrics')
-        finally:
-            sample_server.kill()
-            assert(response.ok)
 
     def _test_push(self):
         sample_client_path = os.path.join('bin', 'test-push', 'sample_client')
@@ -54,14 +36,9 @@ class PrometheuscppTestConan(ConanFile):
             self.output.warn('Cross Building: Skipping Test Package')
             return
 
-        pull = self.options['prometheus-cpp'].enable_pull
-        push = self.options['prometheus-cpp'].enable_push
+        mode = self.options['prometheus-cpp'].mode
 
-        if not pull and not push:
-            self.output.warn('Neither Pull and Push are enabled: Skipping Test Package')
-            return
-
-        if pull:
+        if mode == 'pull':
             sample_server_path = os.path.join('bin', 'sample_server')
             sample_server = subprocess.Popen([sample_server_path])
             self.output.info('Running sample server')
@@ -71,7 +48,7 @@ class PrometheuscppTestConan(ConanFile):
             finally:
                 sample_server.kill()
                 assert(response.ok)
-
-        if push:
-          # TODO
-        
+        else:
+            self.output.warn('Test for push mode is not yet implemented: Skipping Test Package')
+            # TODO finish
+            return

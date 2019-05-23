@@ -7,9 +7,7 @@ from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
 from conans.model.version import Version
 
-
 class PrometheusCppConan(ConanFile):
-
     name = 'prometheus-cpp'
     version = '0.6.0'
     license = 'MIT'
@@ -31,16 +29,13 @@ class PrometheusCppConan(ConanFile):
     options = {
         'shared': [True, False],
         'fPIC': [True, False],
-        'enable_pull': [True, False],
-        'enable_push': [True, False],
+        'mode': ['pull', 'push'],
         'enable_compression': [True, False],
         'override_cxx_standard_flags': [True, False],
         }
     default_options = {
         'shared': False,
         'fPIC': True,
-        'enable_pull': True,
-        'enable_push': True,
         'enable_compression': True,
         'override_cxx_standard_flags': True,
         }
@@ -72,30 +67,20 @@ class PrometheusCppConan(ConanFile):
                     'CMakeLists.txt'))
 
     def configure(self):
-        if not self.options.enable_push \
-            and not self.options.enable_pull:
-            raise ConanInvalidConfiguration('You must enable at least one of push or pull for this package.'
-                    )
 
         cc = self.settings.compiler
-        if self.options.enable_push and cc == 'Visual Studio' \
+        if self.options.mode == 'push' and cc == 'Visual Studio' \
             and Version(cc.version) < '14':
             raise ConanInvalidConfiguration('Visual Studio >= 14 is required, yours is %s'
                      % cc.version)
 
     def requirements(self):
-        if self.options.enable_pull:
+        if self.options.mode == 'pull':
             self.requires('civetweb/1.11@civetweb/stable')
             if self.options.enable_compression:
                 self.requires.add('zlib/1.2.11@conan/stable')
-
-        if self.options.enable_push:
+        else: # self.options.mode == 'push':
             self.requires.add('libcurl/7.61.1@bincrafters/stable')
-            if self.options.enable_pull:
-
-                # required to resolve version mismatch between civetweb and libcurl
-                self.requires('OpenSSL/1.0.2q@conan/stable',
-                              override=True)
 
     def _configure_cmake(self):
         """Create CMake instance and execute configure step
@@ -108,8 +93,8 @@ class PrometheusCppConan(ConanFile):
             cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = \
                 self.options.fPIC
 
-        cmake.definitions['ENABLE_PULL'] = self.options.enable_pull
-        cmake.definitions['ENABLE_PUSH'] = self.options.enable_push
+        cmake.definitions['ENABLE_PULL'] = self.options.mode == 'pull'
+        cmake.definitions['ENABLE_PUSH'] = self.options.mode == 'push'
         cmake.definitions['ENABLE_COMPRESSION'] = \
             self.options.enable_compression
         cmake.definitions['OVERRIDE_CXX_STANDARD_FLAGS'] = \
@@ -148,12 +133,11 @@ class PrometheusCppConan(ConanFile):
         #                     os.path.join(self.package_folder, "bin", "lib%s.dll" % self.name))
 
     def package_info(self):
-
         self.cpp_info.libs.append("prometheus-cpp-core")
 
-        if self.options.enable_pull:
+        if self.options.mode == 'pull':
             self.cpp_info.libs.append('prometheus-cpp-pull')
-        if self.options.enable_push:
+        else: #self.options.mode == 'push':
             self.cpp_info.libs.append('prometheus-cpp-push')
 
         if self.settings.os == 'Linux':
@@ -163,6 +147,5 @@ class PrometheusCppConan(ConanFile):
                 self.cpp_info.libs.append('dl')
 
         # gcc's atomic library not linked automatically on clang
-
         if self.settings.compiler == 'clang':
             self.cpp_info.libs.append('atomic')
