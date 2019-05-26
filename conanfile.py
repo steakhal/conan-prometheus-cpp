@@ -133,7 +133,7 @@ class PrometheusCppConan(ConanFile):
         #                     os.path.join(self.package_folder, "bin", "lib%s.dll" % self.name))
 
     def package_info(self):
-        self.cpp_info.libs.append("prometheus-cpp-core")
+        # self.cpp_info.libs.append("prometheus-cpp-core")
 
         if self.options.mode == 'pull':
             self.cpp_info.libs.append('prometheus-cpp-pull')
