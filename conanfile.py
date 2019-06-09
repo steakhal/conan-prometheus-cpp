@@ -71,7 +71,7 @@ class PrometheusCppConan(ConanFile):
         cc = self.settings.compiler
         if self.options.mode == 'push' and cc == 'Visual Studio' \
             and Version(cc.version) < '14':
-            raise ConanInvalidConfiguration('Visual Studio >= 14 is required, yours is %s'
+            raise ConanInvalidConfiguration('Visual Studio >= 14 is required, your is %s'
                      % cc.version)
 
     def requirements(self):
@@ -133,12 +133,12 @@ class PrometheusCppConan(ConanFile):
         #                     os.path.join(self.package_folder, "bin", "lib%s.dll" % self.name))
 
     def package_info(self):
-        # self.cpp_info.libs.append("prometheus-cpp-core")
-
         if self.options.mode == 'pull':
             self.cpp_info.libs.append('prometheus-cpp-pull')
         else: #self.options.mode == 'push':
             self.cpp_info.libs.append('prometheus-cpp-push')
+        
+        self.cpp_info.libs.append("prometheus-cpp-core")
 
         if self.settings.os == 'Linux':
             self.cpp_info.libs.append('pthread')
