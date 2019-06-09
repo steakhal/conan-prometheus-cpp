@@ -6,19 +6,18 @@
 
 ## Basic setup
 
-    $ conan install . prometheus-cpp/0.6.0@steakhal/testing 
+    $ conan install . prometheus-cpp/0.6.0@steakhal/stable 
     
 ## Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
     
     [requires]
-      prometheus-cpp/0.6.0@steakhal/testing
+      prometheus-cpp/0.6.0@steakhal/stable
 
     [options]
+      prometheus-cpp:mode=pull # or push
       prometheus-cpp:shared=True
-      prometheus-cpp:enable_pull=True
-      prometheus-cpp:enable_push=True
       prometheus-cpp:enable_compression=True
       prometheus-cpp:override_cxx_standard_flags=True
       prometheus-cpp:fPIC=True
