@@ -30,7 +30,14 @@ class PrometheusCppConanTest(ConanFile):
         libs.append(glob.glob(os.path.join(prometheus_path, 'bin', '*.dll')))
         libs.append(glob.glob(os.path.join(prometheus_path, 'lib', '*.so')))
         libs.append(glob.glob(os.path.join(prometheus_path, 'lib', '*.dylib')))
+        dest_path = os.path.join(os.getcwd(), 'bin')
+        self.output.info('Preparing to run test application:')
+
+        self.output.info(os.getcwd())
+        self.output.info(os.listdir(os.getcwd()))
+
         for lib in [item for sublist in libs for item in sublist]:
+          self.output.info('Copy %s to %s' % (lib, dest_path))
           shutil.copy(src=lib, dst='bin')
 
         if self.options['prometheus-cpp'].mode == 'pull':

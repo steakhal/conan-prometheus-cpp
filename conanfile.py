@@ -4,7 +4,6 @@
 import os, shutil
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
-from conans.model.version import Version
 
 class PrometheusCppConan(ConanFile):
     name = 'prometheus-cpp'
@@ -44,11 +43,19 @@ class PrometheusCppConan(ConanFile):
     exports_sources = ['CMakeLists.txt', _source_subfolder]
     generators = 'cmake'
 
+    @property
+    def _is_mingw_windows(self):
+        return self.settings.os == 'Windows' and self.settings.compiler == 'gcc' and os.name == 'nt'
+
+    @property
+    def _is_msvc(self):
+        return self.settings.compiler == 'Visual Studio'
+
     def config_options(self):
         """Remove fPIC option if the compiler is Visual Studio.
         """
 
-        if self.settings.compiler == 'Visual Studio':
+        if self.settings.os == 'Windows':
             self.options.remove('fPIC')
 
     def source(self):
@@ -66,7 +73,6 @@ class PrometheusCppConan(ConanFile):
                     'CMakeLists.txt'))
 
     def configure(self):
-
         compiler = self.settings.compiler
         if compiler == 'Visual Studio' and compiler.version == '12':
             raise ConanInvalidConfiguration('Visual Studio >= 14 is required, your is %s' % compiler.version)
@@ -86,9 +92,13 @@ class PrometheusCppConan(ConanFile):
         cmake = CMake(self)
         cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
 
-        if self.settings.compiler != 'Visual Studio':
+        if self.settings.os != 'Windows':
             cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = \
                 self.options.fPIC
+
+        if self._is_mingw_windows:
+            print('it is _is_mingw_windows')
+            cmake.definitions['CMAKE_CXX_FLAGS'] = '-fno-use-linker-plugin'
 
         cmake.definitions['ENABLE_PULL'] = self.options.mode == 'pull'
         cmake.definitions['ENABLE_PUSH'] = self.options.mode == 'push'
