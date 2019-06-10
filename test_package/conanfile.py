@@ -17,38 +17,39 @@ class PrometheuscppTestConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def _test_push(self):
-        sample_client_path = os.path.join('bin', 'test-push', 'sample_client')
-        sample_client = subprocess.Popen([sample_client_path])
-        self.output.info('Running sample client')
-        time.sleep(3)
-        try:
-            response = requests.get('http://localhost:8080/metrics')
-        finally:
-            sample_client.kill()
-            assert(response.ok)
-
     def test(self):
-        assert os.path.exists(os.path.join(
-            self.deps_cpp_info['prometheus-cpp'].rootpath,
-            'licenses', 'LICENSE'))
+        licenses_path = os.path.join(self.deps_cpp_info['prometheus-cpp'].rootpath, 'licenses')
+        prometheus_license = os.path.join(licenses_path, 'LICENSE')
+        conan_package_license = os.path.join(licenses_path, 'LICENSE.md')
+        assert(os.path.exists(prometheus_license))
+        assert(os.path.exists(conan_package_license))
+
         if tools.cross_building(self.settings):
             self.output.warn('Cross Building: Skipping Test Package')
             return
 
-        mode = self.options['prometheus-cpp'].mode
-
-        if mode == 'pull':
+        if self.options['prometheus-cpp'].mode == 'pull':
             sample_server_path = os.path.join('bin', 'sample_server')
             sample_server = subprocess.Popen([sample_server_path])
             self.output.info('Running sample server')
-            time.sleep(3)
+            time.sleep(1)
             try:
                 response = requests.get('http://localhost:8080/metrics')
             finally:
                 sample_server.kill()
                 assert(response.ok)
-        else:
+                assert(-1 != response.text.find('How many seconds is this server running?'))
+        else: # mode == 'push':
             self.output.warn('Test for push mode is not yet implemented: Skipping Test Package')
             # TODO finish
             return
+            sample_client_path = os.path.join('bin', 'sample_client')
+            sample_client = subprocess.Popen([sample_client_path])
+            self.output.info('Running sample client')
+            time.sleep(3)
+            try:
+                response = requests.get('127.0.0.1:9091')
+            finally:
+                sample_client.kill()
+                assert(response.ok)
+                assert(-1 != response.text.find('How many seconds is this server running?'))

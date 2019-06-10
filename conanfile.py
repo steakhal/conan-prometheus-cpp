@@ -9,7 +9,7 @@ from conans.model.version import Version
 
 class PrometheusCppConan(ConanFile):
     name = 'prometheus-cpp'
-    version = '0.6.0'
+    version = '0.7.0'
     license = 'MIT'
     url = 'https://github.com/steakhal/conan-prometheus-cpp'
     homepage = 'https://github.com/jupp0r/prometheus-cpp'
@@ -46,14 +46,14 @@ class PrometheusCppConan(ConanFile):
     generators = 'cmake'
 
     def config_options(self):
-        """Remove fPIC option on Windows platform
+        """Remove fPIC option on Windows platform.
         """
 
         if self.settings.os == 'Windows':
             self.options.remove('fPIC')
 
     def source(self):
-        """Download and unzip the sources than wrap the original CMake file to call conan_basic_setup
+        """Download and unzip the sources than wrap the original CMake file to call conan_basic_setup.
         """
 
         tools.get('%s/archive/v%s.zip' % (self.homepage, self.version))
@@ -68,11 +68,11 @@ class PrometheusCppConan(ConanFile):
 
     def configure(self):
 
-        cc = self.settings.compiler
-        if self.options.mode == 'push' and cc == 'Visual Studio' \
-            and Version(cc.version) < '14':
+        compiler = self.settings.compiler
+        if compiler == 'Visual Studio' \
+            and Version(compiler.version) < '14':
             raise ConanInvalidConfiguration('Visual Studio >= 14 is required, your is %s'
-                     % cc.version)
+                     % compiler.version)
 
     def requirements(self):
         if self.options.mode == 'pull':
@@ -83,7 +83,7 @@ class PrometheusCppConan(ConanFile):
             self.requires.add('libcurl/7.61.1@bincrafters/stable')
 
     def _configure_cmake(self):
-        """Create CMake instance and execute configure step
+        """Create CMake instance and execute configure step.
         """
 
         cmake = CMake(self)
@@ -114,30 +114,32 @@ class PrometheusCppConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.build()
 
+    def imports(self):
+        """Copy the dynamic libraries to the folder where it would be used.
+        """
+        print("imports called #############################################")
+        print(os.getcwd())
+        print(os.listdir(os.getcwd()))
+        self.copy("*.so", "", "lib")
+        self.copy("*.dylib", "", "lib")
+        self.copy("*.dll", "", "bin")
+
     def package(self):
-        """Copy prometheus-cpp' artifacts to package folder
+        """Copy prometheus-cpp artifacts to package folder
         """
 
         cmake = self._configure_cmake()
         cmake.install()
         self.copy('LICENSE', dst='licenses', src=self._source_subfolder)
+        self.copy('LICENSE.md', dst='licenses')
 
-        # self.copy(pattern="flathash*", dst="bin", src="bin")
-        # self.copy(pattern="flatc*", dst="bin", src="bin")
-        # if self.settings.os == "Windows" and self.options.shared:
-        #     if self.settings.compiler == "Visual Studio":
-        #         shutil.move(os.path.join(self.package_folder, "lib", "%s.dll" % self.name),
-        #                     os.path.join(self.package_folder, "bin", "%s.dll" % self.name))
-        #     elif self.settings.compiler == "gcc":
-        #         shutil.move(os.path.join(self.package_folder, "lib", "lib%s.dll" % self.name),
-        #                     os.path.join(self.package_folder, "bin", "lib%s.dll" % self.name))
 
     def package_info(self):
         if self.options.mode == 'pull':
             self.cpp_info.libs.append('prometheus-cpp-pull')
         else: #self.options.mode == 'push':
             self.cpp_info.libs.append('prometheus-cpp-push')
-        
+
         self.cpp_info.libs.append("prometheus-cpp-core")
 
         if self.settings.os == 'Linux':
