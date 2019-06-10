@@ -96,9 +96,9 @@ class PrometheusCppConan(ConanFile):
             cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = \
                 self.options.fPIC
 
-        if self._is_mingw_windows:
-            print('it is _is_mingw_windows')
-            cmake.definitions['CMAKE_CXX_FLAGS'] = '-fno-use-linker-plugin'
+        #if self._is_mingw_windows:
+        #    print('it is _is_mingw_windows')
+        #    cmake.definitions['CMAKE_CXX_FLAGS'] = '-fno-use-linker-plugin'
 
         cmake.definitions['ENABLE_PULL'] = self.options.mode == 'pull'
         cmake.definitions['ENABLE_PUSH'] = self.options.mode == 'push'
