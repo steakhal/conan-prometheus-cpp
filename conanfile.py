@@ -69,10 +69,8 @@ class PrometheusCppConan(ConanFile):
     def configure(self):
 
         compiler = self.settings.compiler
-        if compiler == 'Visual Studio' \
-            and Version(compiler.version) < '14':
-            raise ConanInvalidConfiguration('Visual Studio >= 14 is required, your is %s'
-                     % compiler.version)
+        if compiler == 'Visual Studio' and compiler.version == '12':
+            raise ConanInvalidConfiguration('Visual Studio >= 14 is required, your is %s' % compiler.version)
 
     def requirements(self):
         if self.options.mode == 'pull':
