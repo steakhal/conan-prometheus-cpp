@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os
-import shutil
+import os, shutil
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
 from conans.model.version import Version
@@ -112,18 +111,8 @@ class PrometheusCppConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.build()
 
-    def imports(self):
-        """Copy the dynamic libraries to the folder where it would be used.
-        """
-        print("imports called #############################################")
-        print(os.getcwd())
-        print(os.listdir(os.getcwd()))
-        self.copy("*.so", "", "lib")
-        self.copy("*.dylib", "", "lib")
-        self.copy("*.dll", "", "bin")
-
     def package(self):
-        """Copy prometheus-cpp artifacts to package folder
+        """Installs prometheus-cpp artifacts to package folder
         """
 
         cmake = self._configure_cmake()

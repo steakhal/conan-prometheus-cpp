@@ -1,13 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os
-import time
-import subprocess
-import requests
+import os, time, shutil, subprocess, requests, glob
 from conans import ConanFile, CMake, tools
 
-class PrometheuscppTestConan(ConanFile):
+class PrometheusCppConanTest(ConanFile):
     settings = ('os', 'compiler', 'build_type', 'arch')
     generators = 'cmake'
 
@@ -18,15 +15,23 @@ class PrometheuscppTestConan(ConanFile):
         cmake.build()
 
     def test(self):
-        licenses_path = os.path.join(self.deps_cpp_info['prometheus-cpp'].rootpath, 'licenses')
-        prometheus_license = os.path.join(licenses_path, 'LICENSE')
-        conan_package_license = os.path.join(licenses_path, 'LICENSE.md')
+        prometheus_path = self.deps_cpp_info['prometheus-cpp'].rootpath
+
+        prometheus_license    = os.path.join(prometheus_path, 'licenses', 'LICENSE')
+        conan_package_license = os.path.join(prometheus_path, 'licenses', 'LICENSE.md')
         assert(os.path.exists(prometheus_license))
         assert(os.path.exists(conan_package_license))
 
         if tools.cross_building(self.settings):
             self.output.warn('Cross Building: Skipping Test Package')
             return
+
+        libs = []
+        libs.append(glob.glob(os.path.join(prometheus_path, 'bin', '*.dll')))
+        libs.append(glob.glob(os.path.join(prometheus_path, 'lib', '*.so')))
+        libs.append(glob.glob(os.path.join(prometheus_path, 'lib', '*.dylib')))
+        for lib in [item for sublist in libs for item in sublist]:
+          shutil.copy(src=lib, dst='bin')
 
         if self.options['prometheus-cpp'].mode == 'pull':
             sample_server_path = os.path.join('bin', 'sample_server')
