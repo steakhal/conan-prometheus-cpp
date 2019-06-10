@@ -45,10 +45,10 @@ class PrometheusCppConan(ConanFile):
     generators = 'cmake'
 
     def config_options(self):
-        """Remove fPIC option on Windows platform.
+        """Remove fPIC option if the compiler is Visual Studio.
         """
 
-        if self.settings.os == 'Windows':
+        if self.settings.compiler == 'Visual Studio':
             self.options.remove('fPIC')
 
     def source(self):
