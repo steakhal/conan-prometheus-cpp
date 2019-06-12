@@ -7,7 +7,7 @@
 
 ## Basic setup
 
-    $ conan install . prometheus-cpp/0.7.0@steakhal/stable 
+    $ conan install . prometheus-cpp/0.7.0@steakhal/stable -o prometheus-cpp:mode=pull
     
 ## Project setup
 
@@ -28,7 +28,7 @@ If you handle multiple dependencies in your project is better to add a *conanfil
 
 Complete the installation of requirements for your project running:
 
-    conan install . -o prometheus-cpp:mode=pull
+    conan install .
 
 Project setup installs the library (and all his dependencies) and generates the files *conanbuildinfo.cmake* with all the 
 paths and variables that you need to link with your dependencies.

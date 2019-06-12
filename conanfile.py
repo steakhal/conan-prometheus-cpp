@@ -130,6 +130,10 @@ class PrometheusCppConan(ConanFile):
         self.copy('LICENSE', dst='licenses', src=self._source_subfolder)
         self.copy('LICENSE.md', dst='licenses')
 
+    def imports(self):
+        self.copy("*.dll", dst="bin", src="bin")
+        self.copy("*.dylib", dst="bin", src="lib")
+        self.copy("*.so", dst="bin", src="lib")
 
     def package_info(self):
         if self.options.mode == 'pull':

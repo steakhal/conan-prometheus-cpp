@@ -25,21 +25,7 @@ class PrometheusCppConanTest(ConanFile):
         if tools.cross_building(self.settings):
             self.output.warn('Cross Building: Skipping Test Package')
             return
-
-        libs = []
-        libs.append(glob.glob(os.path.join(prometheus_path, 'bin', '*.dll')))
-        libs.append(glob.glob(os.path.join(prometheus_path, 'lib', '*.so')))
-        libs.append(glob.glob(os.path.join(prometheus_path, 'lib', '*.dylib')))
-        dest_path = os.path.join(os.getcwd(), 'bin')
-        self.output.info('Preparing to run test application:')
-
-        self.output.info(os.getcwd())
-        self.output.info(os.listdir(os.getcwd()))
-
-        for lib in [item for sublist in libs for item in sublist]:
-          self.output.info('Copy %s to %s' % (lib, dest_path))
-          shutil.copy(src=lib, dst='bin')
-
+  
         if self.options['prometheus-cpp'].mode == 'pull':
             sample_server_path = os.path.join('bin', 'sample_server')
             sample_server = subprocess.Popen([sample_server_path])
