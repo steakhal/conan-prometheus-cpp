@@ -4,7 +4,7 @@ project(PackageTest CXX)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
+conan_basic_setup()
 
 find_package(prometheus-cpp CONFIG REQUIRED)
 
