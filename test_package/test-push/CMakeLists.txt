@@ -9,5 +9,5 @@ set_target_properties(sample_client
 
 target_link_libraries(sample_client
   PRIVATE
-    CONAN_PKG::prometheus-cpp
+  CONAN_PKG::OpenSSL CONAN_PKG::libcurl CONAN_PKG::prometheus-cpp
 )
