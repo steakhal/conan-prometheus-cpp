@@ -45,17 +45,6 @@ class PrometheusCppConanTest(ConanFile):
                 assert(response.ok)
                 assert(-1 != response.text.find('How many seconds is this server running?'))
         else:  # mode == 'push':
-            self.output.warn(
-                'Test for push mode is not yet implemented: Skipping Test Package')
-            # TODO finish
-            return
-            sample_client_path = os.path.join('bin', 'sample_client')
-            sample_client = subprocess.Popen([sample_client_path])
             self.output.info('Running sample client')
-            time.sleep(3)
-            try:
-                response = requests.get('127.0.0.1:9091')
-            finally:
-                sample_client.kill()
-                assert(response.ok)
-                assert(-1 != response.text.find('How many seconds is this server running?'))
+            sample_client_path = os.path.join('bin', 'sample_client')
+            assert(0 == subprocess.check_call([sample_client_path]))

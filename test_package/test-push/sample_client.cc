@@ -50,13 +50,11 @@ int main() {
   // ask the pusher to push the metrics to the pushgateway
   gateway.RegisterCollectable(registry);
 
-  for (;;) {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    // increment the counter by one (second)
-    second_counter.Increment();
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  // increment the counter by one (second)
+  second_counter.Increment();
 
-    // push metrics
-    gateway.Push();
-  }
+  // push metrics
+  gateway.Push();
   return 0;
 }
