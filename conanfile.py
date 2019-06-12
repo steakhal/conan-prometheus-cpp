@@ -4,6 +4,7 @@
 import os, shutil
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
+from conans.model.version import Version
 
 class PrometheusCppConan(ConanFile):
     name = 'prometheus-cpp'
@@ -73,9 +74,9 @@ class PrometheusCppConan(ConanFile):
                     'CMakeLists.txt'))
 
     def configure(self):
-        compiler = self.settings.compiler
-        if compiler == 'Visual Studio' and compiler.version == '12':
-            raise ConanInvalidConfiguration('Visual Studio >= 14 is required, your is %s' % compiler.version)
+        if self.settings.compiler == "Visual Studio" and \
+           Version(self.settings.compiler.version.value) < "14":
+            raise ConanInvalidConfiguration("Prometheus-cpp does not support MSVC < 14")
 
     def requirements(self):
         if self.options.mode == 'pull':
