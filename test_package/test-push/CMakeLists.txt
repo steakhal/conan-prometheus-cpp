@@ -8,5 +8,6 @@ set_target_properties(sample_client
 )
 
 target_link_libraries(sample_client
-  PUBLIC ${CONAN_LIBS}
+  PRIVATE
+    CONAN_PKG::prometheus-cpp
 )
