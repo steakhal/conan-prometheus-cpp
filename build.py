@@ -10,5 +10,8 @@ if __name__ == "__main__":
     for settings, options, env_vars, build_requires, reference in builder.items:
         options['prometheus-cpp:mode'] = 'pull'
         updated_builds.append([settings, options, env_vars, build_requires])
+        options = options.copy()
+        options['prometheus-cpp:mode'] = 'push'
+        updated_builds.append([settings, options, env_vars, build_requires])
     builder.builds = updated_builds
     builder.run()
