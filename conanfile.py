@@ -79,7 +79,7 @@ class PrometheusCppConan(ConanFile):
 
     def requirements(self):
         if self.options.mode == 'pull':
-            self.requires('civetweb/1.11@civetweb/stable')
+            self.requires('civetweb/1.12.0@steakhal/testing')
             if self.options.enable_compression:
                 self.requires.add('zlib/1.2.11@conan/stable')
         else: # self.options.mode == 'push':
