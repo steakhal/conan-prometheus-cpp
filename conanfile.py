@@ -72,7 +72,7 @@ class PrometheusCppConan(ConanFile):
             if self.options.enable_compression:
                 self.requires.add('zlib/1.2.11@conan/stable')
         else:  # self.options.mode == 'push':
-            self.requires.add('libcurl/7.61.1@bincrafters/stable')
+            self.requires.add('libcurl/7.64.1@bincrafters/stable')
 
     def _configure_cmake(self):
         cmake = CMake(self)
